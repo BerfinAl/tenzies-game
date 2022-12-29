@@ -30,7 +30,7 @@ main {
 p {
   text-align: center;
   font-size: 1.3rem;
-  }
+}
 
 .roll-time {
   text-align: center;
@@ -84,4 +84,32 @@ button:active {
   position: absolute;
   right: 1em;
   top: 0;
+}
+
+@media (max-width: 750px) {
+  button {
+    font-size: 1.1rem;
+    padding: 0.6em 1.2em;
+    border-radius: 0.5rem;
+  }
+  .die-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+    margin: 1rem;
+    margin-bottom: 2rem;
+  }
+  .die-box {
+    padding: 0.2rem 1.2rem;
+    border-radius: 0.4rem;
+  }
+  .title {
+    font-size: 2em;
+  }
+  .die-num {
+    font-size: 1.2rem;
+  }
+  p {
+    font-size: 1.1rem;
+  }
 }
