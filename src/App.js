@@ -3,20 +3,30 @@ import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 import Die from "./Die";
 import Confetti from "./Confetti";
-import Fail from "./Fail";
 
 export default function App() {
   const [dice, setDice] = useState(allNewDice());
-  const [tenzies, setTenzies] = useState(false);
   const [rolledTimes, setRolledTimes] = useState(0);
   const Ref = useRef(null);
-  const [timer, setTimer] = useState("00:00");
+  const [timer, setTimer] = useState("01:00");
+  const [tenzies, setTenzies] = useState("game");
 
-  /*
- the function returns an object containing 
-the total number of milliseconds remaining, 
-as well as the number of minutes and seconds remaining.
-*/
+const hasWon = (
+      dice.every((die) => die.value === dice[0].value) &&
+      dice.every((die) => die.isHeld)
+    )
+
+
+  useEffect(() => {
+    if (timer !== "00:00" && hasWon) {
+        setTenzies("win") 
+    } else if (timer === "00:00" && hasWon === false ) {
+      setTenzies("lose")
+    } else if (timer !== "00:00" && !hasWon) {
+      setTenzies("game")
+    }
+  }, [timer , dice]);
+
 
   const getTimeRemaining = (e) => {
     const total = Date.parse(e) - Date.parse(new Date());
@@ -41,7 +51,7 @@ as well as the number of minutes and seconds remaining.
   };
 
   const clearTimer = (e) => {
-    setTimer("00:10");
+    setTimer("00:30");
     if (Ref.current) clearInterval(Ref.current);
     const id = setInterval(() => {
       startTimer(e);
@@ -51,7 +61,7 @@ as well as the number of minutes and seconds remaining.
 
   const getDeadTime = () => {
     let deadline = new Date();
-    deadline.setSeconds(deadline.getSeconds() + 10);
+    deadline.setSeconds(deadline.getSeconds() + 30);
     return deadline;
   };
 
@@ -86,7 +96,7 @@ as well as the number of minutes and seconds remaining.
   }
 
   function rollDice() {
-    if (!tenzies) {
+    if (tenzies === "game") {
       setRolledTimes((oldTime) => oldTime + 1);
       setDice((oldDice) =>
         oldDice.map((die) => {
@@ -102,19 +112,11 @@ as well as the number of minutes and seconds remaining.
     } else {
       setDice(allNewDice());
       setRolledTimes(0);
-      setTenzies(false);
+      setTenzies("game");
       reset();
     }
   }
 
-  useEffect(() => {
-    if (
-      dice.every((die) => die.value === dice[0].value) &&
-      dice.every((die) => die.isHeld)
-    ) {
-      return setTenzies(true);
-    }
-  }, [dice]);
 
   const diceElements = dice.map((die) => {
     return (
@@ -127,22 +129,26 @@ as well as the number of minutes and seconds remaining.
     );
   });
 
+
   return (
+    <>
+  {(tenzies === "win") && <Confetti />}
     <main>
-      {!tenzies && (
+      {tenzies === "game" && (
         <>
           <h2 className="count-down"> {timer}</h2>
           <h1 className="title">Tenzi</h1>
           <p className="instructions">
-            Tenzi is a fun dice game. Roll until all dice are the same. Click
+            Roll until all dice are the same. Click
             each die to freeze it at its current value between rolls.
           </p>
           <div className="die-container">{diceElements}</div>
         </>
       )}
-      {tenzies && <p className="roll-time"> It took {rolledTimes} rolls</p>}
-      <button onClick={rollDice}>{tenzies ? "New Game" : "Roll"}</button>
-      {tenzies && <Confetti />}
+      {(tenzies === "win") && <p className="roll-time"> It took {rolledTimes} rolls!</p>}
+      {tenzies === "lose" && <p> You're never a loser until you quit trying. Wanna try again? </p> }
+      <button onClick={rollDice}>{tenzies === "game" ?  "Roll" : "New Game" }</button>
     </main>
+</>
   );
 }
