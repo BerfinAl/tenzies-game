@@ -19,6 +19,7 @@ main {
   justify-content: center;
   align-items: center;
   padding: 20px;
+  position: relative;
 }
 
 .title {
@@ -76,4 +77,11 @@ button {
 
 button:active {
   box-shadow: inset 5px 5px 10px -3px rgba(0, 0, 0, 0.2);
+}
+
+.count-down {
+  color: red;
+  position: absolute;
+  right: 1em;
+  top: 0;
 }

@@ -1,13 +1,67 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 import Die from "./Die";
 import Confetti from "./Confetti";
+import Fail from "./Fail";
 
 export default function App() {
   const [dice, setDice] = useState(allNewDice());
   const [tenzies, setTenzies] = useState(false);
   const [rolledTimes, setRolledTimes] = useState(0);
+  const Ref = useRef(null);
+  const [timer, setTimer] = useState("00:00");
+
+  /*
+ the function returns an object containing 
+the total number of milliseconds remaining, 
+as well as the number of minutes and seconds remaining.
+*/
+
+  const getTimeRemaining = (e) => {
+    const total = Date.parse(e) - Date.parse(new Date());
+    const seconds = Math.floor((total / 1000) % 60);
+    const minutes = Math.floor((total / 1000 / 60) % 60);
+    return {
+      total,
+      minutes,
+      seconds,
+    };
+  };
+
+  const startTimer = (e) => {
+    let { total, minutes, seconds } = getTimeRemaining(e);
+    if (total >= 0) {
+      setTimer(
+        (minutes > 9 ? minutes : "0" + minutes) +
+          ":" +
+          (seconds > 9 ? seconds : "0" + seconds)
+      );
+    }
+  };
+
+  const clearTimer = (e) => {
+    setTimer("00:10");
+    if (Ref.current) clearInterval(Ref.current);
+    const id = setInterval(() => {
+      startTimer(e);
+    }, 1000);
+    Ref.current = id;
+  };
+
+  const getDeadTime = () => {
+    let deadline = new Date();
+    deadline.setSeconds(deadline.getSeconds() + 10);
+    return deadline;
+  };
+
+  useEffect(() => {
+    clearTimer(getDeadTime());
+  }, []);
+
+  const reset = () => {
+    clearTimer(getDeadTime());
+  };
 
   function allNewDice() {
     const newDice = [];
@@ -49,6 +103,7 @@ export default function App() {
       setDice(allNewDice());
       setRolledTimes(0);
       setTenzies(false);
+      reset();
     }
   }
 
@@ -76,17 +131,16 @@ export default function App() {
     <main>
       {!tenzies && (
         <>
-          {" "}
-          <h1 className="title">Tenzies</h1>
+          <h2 className="count-down"> {timer}</h2>
+          <h1 className="title">Tenzi</h1>
           <p className="instructions">
-            Roll until all dice are the same. Click each die to freeze it at its
-            current value between rolls.
-          </p>{" "}
-          <div className="die-container">{diceElements}</div>{" "}
+            Tenzi is a fun dice game. Roll until all dice are the same. Click
+            each die to freeze it at its current value between rolls.
+          </p>
+          <div className="die-container">{diceElements}</div>
         </>
       )}
       {tenzies && <p className="roll-time"> It took {rolledTimes} rolls</p>}
-
       <button onClick={rollDice}>{tenzies ? "New Game" : "Roll"}</button>
       {tenzies && <Confetti />}
     </main>
